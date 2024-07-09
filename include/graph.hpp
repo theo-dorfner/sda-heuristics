@@ -16,6 +16,7 @@ class Graph
 
 public:
     int activeVertices{0};
+    bool fillIn{false};
 
     int getNVertices() const; // return nNodes
     int getNEdges() const; // return nEdges
@@ -25,7 +26,7 @@ public:
 
     short int addVertex(std::string); //can also act as check if vertex already exists
 
-    int addEdge(short int, short int);
+    bool addEdge(short int, short int);
 
     short int getIDfromLabel(std::string);
 
@@ -33,9 +34,9 @@ public:
 
     void print() const;
 
-    void countFillIn();
+    void countAllFillIn();
 
-    void updateFillIn(Vertex&);
+    void countFillIn(Vertex&);
 
     void eliminate(short int);
 

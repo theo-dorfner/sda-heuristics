@@ -1,17 +1,18 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <unordered_set>
 
 #include "vertex.hpp"
 
-using idList = std::vector<short int>;
+using idList = std::unordered_set<short int>;
 
 class Node 
 {
     short int id;
     idList neighbours; // could also be pointers
     idList bag;
-    int degree{0};
+    short int degree{0};
 
 public:
     Node(short int);
@@ -48,5 +49,5 @@ public:
 
     void print() const;
 
-    short int findNodeIncluding(const std::vector<short int>&) const;
+    short int findNodeIncluding(const idList&) const;
 };

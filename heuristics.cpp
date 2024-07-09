@@ -4,12 +4,16 @@
 #include <cstdio>
 #include <string>
 #include <algorithm>
+#include <unordered_set>
 
 #include "include/vertex.hpp"
 #include "include/graph.hpp"
 #include "include/treeDecomp.hpp"
 
-TreeDecomposition decomposition_from_ordering(Graph graph, std::vector<int>& eliminationOrdering)
+using idList = std::unordered_set<short int>;
+
+
+TreeDecomposition decomposition_from_ordering(Graph& graph, std::vector<int>& eliminationOrdering)
 {
     if(eliminationOrdering.size() == 1)
     {
@@ -20,20 +24,26 @@ TreeDecomposition decomposition_from_ordering(Graph graph, std::vector<int>& eli
         return td;
     }
 
+
     int eliminatedID = eliminationOrdering[0];
     eliminationOrdering.erase(eliminationOrdering.begin());
+    int level{eliminationOrdering.size()};
 
     // find node s.t. neighbours included in bag
     Vertex& eliminatedVertex = graph.getVertex(eliminatedID);
-    const std::vector<short int> &neighbours = eliminatedVertex.getNeighbours();
-    
+    // std::cout << "started " << level << ", n: " << eliminatedVertex.dgr() << std::endl;
+    const idList& neighbours = eliminatedVertex.getNeighbours();
+
+    // std::cout << "\reliminating " << level << std::endl;
+
     graph.eliminate(eliminatedID);
+    // std::cout << "eliminated " << eliminationOrdering.size() << std::endl;
     // std::cout << "GRAPH AFTER ELIMINATION of " << eliminatedID << std::endl;
     // graph.print();
     TreeDecomposition td = decomposition_from_ordering(graph, eliminationOrdering);
 
 
-    // std::cout << "&&reached " << eliminationOrdering.size() << std::endl;
+    // std::cout << "level " << level << std::endl;
 
 
 
@@ -41,7 +51,7 @@ TreeDecomposition decomposition_from_ordering(Graph graph, std::vector<int>& eli
     // for (auto &elem : neighbours) std::cout << elem << " ";
     // std::cout << std::endl;
 
-
+    // return td;
     short int nodeT = td.findNodeIncluding(neighbours);
     if(nodeT == -1) std::cout << "serious problem" << std::endl;
 
@@ -104,11 +114,13 @@ int main(int argc, char *argv[]){
     int eliminationSorts{0};
     if (heuristicMethod == "degree") 
     {
+        Graph eliminationGraph = graph;
+
         std::vector<short int> startingVertices;
-        for(short int i{0}; i < graph.getNVertices();i++) startingVertices.push_back(i);
+        for(short int i{0}; i < eliminationGraph.getNVertices();i++) startingVertices.push_back(i);
 
         // perform initial sort
-        std::sort(startingVertices.begin(),startingVertices.end(),[&graph](int first, int second){return (graph.getVertex(first).activeDegree < graph.getVertex(second).activeDegree);});
+        std::sort(startingVertices.begin(),startingVertices.end(),[&eliminationGraph](int first, int second){return (eliminationGraph.getVertex(first).activeDegree < eliminationGraph.getVertex(second).activeDegree);});
 
         // for (auto &elem : startingVertices) std::cout << elem << " " << graph.getVertex(elem).activeDegree << std::endl;
 
@@ -120,25 +132,18 @@ int main(int argc, char *argv[]){
 
 
         // start elimination
-        for(int i{0}; i < graph.getNVertices();i++) 
+        for(int i{0}; i < eliminationGraph.getNVertices();i++) 
         {
             int eliminatedID = startingVertices[0];
             startingVertices.erase(startingVertices.begin());
             eliminationOrdering.push_back(eliminatedID);
 
-            Vertex eliminatedVertex = graph.getVertex(eliminatedID);
-            eliminatedVertex.eliminated = true;
+            eliminationGraph.eliminate(eliminatedID);
 
-            const std::vector<short int> &neighbours = eliminatedVertex.getNeighbours();
-
-            for(const auto &neighbourID : neighbours){
-                Vertex& neighbour = graph.getVertex(neighbourID);
-                if (!(neighbour.eliminated)) neighbour.activeDegree--;
-            }
 
 
             // perform checkup sort
-            std::sort(startingVertices.begin(),startingVertices.end(),[&graph,&eliminationSorts](int first, int second){bool stays = (graph.getVertex(first).activeDegree < graph.getVertex(second).activeDegree); if (!stays) eliminationSorts++; return stays;});
+            std::sort(startingVertices.begin(),startingVertices.end(),[&eliminationGraph,&eliminationSorts](int first, int second){bool stays = (eliminationGraph.getVertex(first).activeDegree < eliminationGraph.getVertex(second).activeDegree); if (!stays) eliminationSorts++; return stays;});
 
             // Generating OUTPUT
             // std::cout << graph.getVertex(eliminatedID).label ;
@@ -151,13 +156,16 @@ int main(int argc, char *argv[]){
 
     else if (heuristicMethod == "fill") {
         // fill in values of fillIn edges
-        graph.countFillIn();
+        Graph eliminationGraph = graph;
+        eliminationGraph.fillIn = true;
+
+        eliminationGraph.countAllFillIn();
 
         std::vector<short int> startingVertices;
-        for(short int i{0}; i < graph.getNVertices();i++) startingVertices.push_back(i);
+        for(short int i{0}; i < eliminationGraph.getNVertices();i++) startingVertices.push_back(i);
 
         // perform initial sort
-        std::sort(startingVertices.begin(),startingVertices.end(),[&graph](int first, int second){return (graph.getVertex(first).requiredFillInEdges < graph.getVertex(second).requiredFillInEdges);});
+        std::sort(startingVertices.begin(),startingVertices.end(),[&eliminationGraph](int first, int second){return (eliminationGraph.getVertex(first).requiredFillInEdges < eliminationGraph.getVertex(second).requiredFillInEdges);});
 
 
         // OUTPUT
@@ -166,28 +174,33 @@ int main(int argc, char *argv[]){
 
 
         // start elimination
-        for(int i{0}; i < graph.getNVertices();i++) 
+        for(int i{0}; i < eliminationGraph.getNVertices();i++) 
         {
             int eliminatedID = startingVertices[0];
             startingVertices.erase(startingVertices.begin());
             eliminationOrdering.push_back(eliminatedID);
 
-            Vertex eliminatedVertex = graph.getVertex(eliminatedID);
-            eliminatedVertex.eliminated = true;
+            Vertex& eliminatedVertex = eliminationGraph.getVertex(eliminatedID);
+            std::cout << eliminatedID <<  " : " << eliminatedVertex.requiredFillInEdges << std::endl;
 
-            const std::vector<short int> &neighbours = eliminatedVertex.getNeighbours();
+            // eliminatedVertex.eliminated = true;
 
-            for(const auto &neighbourID : neighbours){
-                Vertex& neighbour = graph.getVertex(neighbourID);
-                if (!(neighbour.eliminated)) graph.updateFillIn(neighbour);
-            }
+            // const idList neighbours = eliminatedVertex.getNeighbours();
+
+            eliminationGraph.eliminate(eliminatedID);
+
+            // for(const auto &neighbourID : neighbours){
+            //     Vertex& neighbour = eliminationGraph.getVertex(neighbourID);
+            //     // std::cout << i << " - abdating " << neighbourID << std::endl;
+            //     if (!(neighbour.eliminated)) eliminationGraph.countFillIn(neighbour);
+            // }
 
 
             // perform checkup sort
-            std::sort(startingVertices.begin(),startingVertices.end(),[&graph,&eliminationSorts](int first, int second){bool stays = (graph.getVertex(first).activeDegree < graph.getVertex(second).activeDegree); if (!stays) eliminationSorts++; return stays;});
+            std::sort(startingVertices.begin(),startingVertices.end(),[&eliminationGraph,&eliminationSorts](int first, int second){bool stays = (eliminationGraph.getVertex(first).requiredFillInEdges < eliminationGraph.getVertex(second).requiredFillInEdges); if (!stays) eliminationSorts++; return stays;});
 
             // Generating OUTPUT
-            // std::cout << graph.getVertex(eliminatedID).label ;
+            // std::cout << eliminationGraph.getVertex(eliminatedID).label ;
             // for (auto &elem : startingVertices) std::cout << "(" << graph.getVertex(elem).label << "," << graph.getVertex(elem).requiredFillInEdges << ") ";
             // std::cout << eliminationSorts << std::endl;
         }
@@ -208,7 +221,7 @@ int main(int argc, char *argv[]){
             eliminationOrdering.insert(eliminationOrdering.begin(), eliminatedID);
 
             Vertex eliminatedVertex = graph.getVertex(eliminatedID);
-            const std::vector<short int> &neighbours = eliminatedVertex.getNeighbours();
+            const idList &neighbours = eliminatedVertex.getNeighbours();
 
             for(const auto &neighbourID : neighbours){
                 Vertex& neighbour = graph.getVertex(neighbourID);
@@ -225,10 +238,11 @@ int main(int argc, char *argv[]){
             // std::cout << eliminationSorts << std::endl;
         }
     }
+    // return 0;
 
     // printf("INITIAL GRAPH: \n");
     // graph.print();
-    std::cout<< "generated sorting" << std::endl;
+    // std::cout<< "generated sorting" << std::endl;
 
     // OUTPUT
     // std::cout << "EliminationSorts: " << eliminationSorts << std::endl;

@@ -6,6 +6,10 @@
 #include <cstdio>
 #include <iostream>
 #include <algorithm>
+#include <unordered_set>
+
+using idList = std::unordered_set<short int>;
+
 
 
 int Graph::getNVertices() const {return nVertices;}
@@ -41,12 +45,15 @@ short int Graph::addVertex(std::string label)
 
 }
 
-int Graph::addEdge(short int sourceID, short int targetID) 
+bool Graph::addEdge(short int sourceID, short int targetID) 
 {
     if (!(sourceID < nVertices && targetID < nVertices) && (sourceID != -1) && (targetID != -1)) return -1;
-    vertices[sourceID].addNeighbour(targetID);
-    vertices[targetID].addNeighbour(sourceID);
-    return nEdges++; // return edge ID
+
+    if(vertices[sourceID].addNeighbour(targetID)){
+        vertices[targetID].addNeighbour(sourceID);
+        return true; // return edge ID
+    }
+    else return false;
 }
 
 short int Graph::getIDfromLabel(std::string label)
@@ -79,45 +86,93 @@ void Graph::print() const
 }
 
 
-void Graph::countFillIn() 
+void Graph::countAllFillIn() 
 {
-    for(auto &vertex : vertices)updateFillIn(vertex);
+    int i{0};
+    for(auto &vertex : vertices){
+        countFillIn(vertex);
+        // std::cout << "updating " << i++ << std::endl;
+    }
 }
 
-void Graph::updateFillIn(Vertex& vertex) 
+void Graph::countFillIn(Vertex& vertex) 
 {
-    const std::vector<short int> &neighbours = vertex.getNeighbours();
-    for(auto &n0 : neighbours){
-        Vertex& neighbour = getVertex(n0);
-        if(neighbour.eliminated) continue;
-        const std::vector<short int> &secondNeighbours = neighbour.getNeighbours();
-        for(auto &n1 : neighbours){
-            if(getVertex(n1).eliminated) continue;
-            if(n1 >= n0) break;
+    vertex.requiredFillInEdges = 0;
+    const idList &baseNeighbours = vertex.getNeighbours();
+    for(idList::const_iterator primaryNeighbour = baseNeighbours.begin();primaryNeighbour != baseNeighbours.end();primaryNeighbour++){
+        Vertex& primaryNVertex = getVertex(*primaryNeighbour);
+        // if(primaryNVertex.eliminated) continue;
+
+        const idList &secondaryNeighbours = primaryNVertex.getNeighbours();
+        for(idList::const_iterator secondaryNeighbour = baseNeighbours.begin(); secondaryNeighbour != primaryNeighbour; secondaryNeighbour++) {
+            // if(getVertex(*secondaryNeighbour).eliminated) continue;
             bool found{false};
-            for(auto &n2 : secondNeighbours){
-                if(n2 > n1) break;
-                if(n1 == n2){found = true; break;}
-            }
-            if(!found) vertex.requiredFillInEdges++;
+
+            if(secondaryNeighbours.find(*secondaryNeighbour) == secondaryNeighbours.end()) vertex.requiredFillInEdges++;
         }
+
+
     }
+    // for(auto &n0 : neighbours){
+    //     const idList &secondNeighbours = neighbour.getNeighbours();
+    //     for(auto &n1 : neighbours){
+    //         if(getVertex(n1).eliminated) continue;
+    //         if(n1 >= n0) break;
+    //         bool found{false};
+    //         for(auto &n2 : secondNeighbours){
+    //             if(n2 > n1) break;
+    //             if(n1 == n2){found = true; break;}
+    //         }
+    //         if(!found) vertex.requiredFillInEdges++;
+    //     }
+    // }
 };
 
 void Graph::eliminate(short int iD) {
+    // std::cout << "elimination" << std::endl;
     // std::cout << " attempting to eliminate " << iD << " -" << getVertex(iD).label << std::endl;
-    getVertex(iD).eliminated = true;
+    Vertex& vertex = getVertex(iD);
+    vertex.eliminated = true;
     activeVertices--;
-    const std::vector<short int> &neighbours = getVertex(iD).getNeighbours();
-    for(int i{0}; i < neighbours.size();i++){
+    const idList &neighbours = vertex.getNeighbours();
+    // std::cout << "loop:" << std::endl;
+    for(idList::const_iterator neighbourIt = neighbours.begin();neighbourIt != neighbours.end();neighbourIt++){
+    // for(int i{0}; i < neighbours.size();i++){
+        // std::cout << "." << std::endl;
         // std::cout << "  from " << neighbour << " -" << getVertex(neighbour).label << std::endl;
-        auto neighbour = neighbours[i];
-        Vertex& neighbourVertex = getVertex(neighbour);
-        if(!neighbourVertex.removeNeighbour(iD)) std::cout << "couldn't delete" << std::endl;
+        // auto neighbour = neighbours[i];
+        Vertex& neighbourVertexI = getVertex(*neighbourIt);
+        // if(!) std::cout << "couldn't delete" << std::endl;
+        neighbourVertexI.removeNeighbour(iD);
 
         // generate clique
-        for(int j{i+1}; j < neighbours.size(); j++) addEdge(neighbour,neighbours[j]);
+        // std::cout << "e" << std::endl;
 
+        for(idList::const_iterator neighbourJIT = std::next(neighbourIt); neighbourJIT != neighbours.end(); neighbourJIT++){
+            bool added = addEdge(*neighbourIt,*neighbourJIT);
+            
+            if(fillIn){
+                if(added){
+                    const idList& neighboursI = neighbourVertexI.getNeighbours();
+
+                    Vertex& neighbourVertexJ = getVertex(*neighbourJIT);
+                    const idList& neighboursJ = neighbourVertexJ.getNeighbours();
+                    // for every neighbour if I
+                    for(const auto& nOfI : neighboursI){
+                        // check if that neighbour is also a neighbour of j
+                        if(neighboursJ.find(nOfI) != neighboursJ.end()){
+                            // getVertex(nOfI).requiredFillInEdges--;
+                        }
+                    }
+                    // if so, reduce neighbours fill in edges by one
+                }
+            }
+        }
+        // for(int j{i+1}; j < neighbours.size(); j++) addEdge(neighbour,neighbours[j]);
+        // std::cout << "done" << std::endl;
+        
     }
+    // vertex.clearNeighbours();
+    // std::cout << " done" << std::endl;
 
 }

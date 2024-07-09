@@ -2,15 +2,16 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <unordered_set>
 
-using idList = std::vector<short int>;
+using idList = std::unordered_set<short int>;
 
 // NODE
 Node::Node(short int iD) : id{iD}{};
 
 short int Node::ID() const {return id;}
 
-void Node::addNeighbour(short int id) {neighbours.push_back(id);}
+void Node::addNeighbour(short int id) {neighbours.insert(id);}
 
 const idList& Node::getNeighbours() const {return neighbours;}
 
@@ -18,8 +19,7 @@ const idList& Node::getBag() const {return bag;}
 
 std::size_t Node::addToBag(short int iD) 
 {
-    bag.push_back(iD);
-    std::sort(bag.begin(),bag.end());
+    bag.insert(iD);
     return bag.size();
 }
 
@@ -74,7 +74,7 @@ void TreeDecomposition::print() const
     }
 }
 
-short int TreeDecomposition::findNodeIncluding(const std::vector<short int>& vertices) const 
+short int TreeDecomposition::findNodeIncluding(const idList& vertices) const 
 {
     // std::cout << "trying to find: ";
     // for (auto &elem : vertices) std::cout << elem << " ";
@@ -82,18 +82,16 @@ short int TreeDecomposition::findNodeIncluding(const std::vector<short int>& ver
     for(int i{nNodes - 1}; i > -1 ;i--)
     {
         bool next{false};
-        const std::vector<short int> &bag = nodes[i].getBag();
+        const idList &bag = nodes[i].getBag();
         // std::cout << "  node " << i << ": ";
         // for (auto &elem : bag) std::cout << elem << " ";
         // std::cout << std::endl;
-        for(auto &vertex : vertices)
+        for(const auto &vertex : vertices)
         {
-            bool found{false};
-            for(auto &elem : bag){
-                if(vertex == elem) found = true;
+            if(bag.find(vertex) == bag.end()){
+                next = true;
+                break;
             }
-            if(found) continue;
-            else {next = true; break;}
         }
         if(!next) return nodes[i].ID();
     }

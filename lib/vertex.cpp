@@ -13,21 +13,14 @@ int Vertex::dgr() const {return degree;}
 
 bool Vertex::addNeighbour(short int iD) 
 {
-    std::sort(neighbours.begin(),neighbours.end());
-    for(std::vector<short int>::iterator it = neighbours.begin();it != neighbours.end();){
-        if(*it < iD) it++;
-        else if (*it == iD) return false;
-        else if (*it > iD) {
-            neighbours.insert(it,iD);
-            degree++;
-            activeDegree++;
-            return true;
-        }
+    auto state = neighbours.insert(iD);
+    if(state.second){
+        degree++;
+        activeDegree++;
+        // std::cout << iD << ", d: " << degree << ", aD: " << activeDegree << std::endl;
+        return true;
     }
-    neighbours.insert(neighbours.end(),iD);
-    degree++;
-    activeDegree++;
-    return true;
+    else return false;
 }
 
 const idList& Vertex::getNeighbours() const {return neighbours;}
@@ -38,20 +31,11 @@ bool Vertex::operator==(const Vertex& other) const
 }
 
 
-bool Vertex::removeNeighbour(short int iD) 
+void Vertex::removeNeighbour(short int iD) 
 {
-    for (std::vector<short int>::iterator it = neighbours.begin(); it != neighbours.end();)
-    // for(int i{0};i < neighbours.size();i++)
-    {
-        // std::cout << *it << std::endl;
-        // std::cout << "      N:" << neighbours[i] << std::endl;
-        if(*it == iD){
-        // if(neighbours[i] == iD){
-            neighbours.erase(it);
-            return true;
-        }
-        else
-            ++it;
-    }
-    return false;
+    neighbours.erase(iD);
+    degree--;
+    activeDegree--;
 };
+
+void Vertex::clearNeighbours(){neighbours.clear();}

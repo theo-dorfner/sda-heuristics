@@ -1,6 +1,7 @@
-CXX=g++-11
+#CXX=g++-11
 
-CXXFLAGS = -std=c++1y -O3 -pedantic -march=native -ffast-math
+CXXFLAGS = -pg -std=c++17 -O3 -pedantic -march=native -ffast-math 
+# CXXFLAGS = -std=c++17 -O3 -pedantic -march=native -ffast-math 
 
 .DEFAULT_GOAL := main
 

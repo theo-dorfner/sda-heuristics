@@ -1,14 +1,15 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <unordered_set>
 
-using idList = std::vector<short int>;
+using idList = std::unordered_set<short int>;
 
 class Vertex
 {
     short int id;
     idList neighbours; // could also be pointers
-    int degree{0};
+    short int degree{0};
 
 public:
     int activeDegree{0}, requiredFillInEdges{0},activeNeighbours{0};
@@ -28,6 +29,8 @@ public:
 
     bool operator==(const Vertex&) const;
 
-    bool removeNeighbour(short int);
+    void removeNeighbour(short int);
+
+    void clearNeighbours();
 
 };
