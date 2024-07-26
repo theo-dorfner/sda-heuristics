@@ -114,28 +114,28 @@ fig.suptitle(f"Comparison of Average and Median Width\nbetween Heuristic Methods
 fig.supylabel("Width",size=15)        # label heuristics method on y axis
 
 # plot values for n=1000
-high[0].plot(xValues, methodResults["fill"]["avg"][-3:],"o-",color="goldenrod", label= "Min Fill-In (fill)")
-high[1].plot(xValues, methodResults["fill"]["median"][-3:],"v-",color="goldenrod")
-high[0].plot(xValues, methodResults["degree"]["avg"][-3:],"o-",color="steelblue", label= "Min Degree (degree)")
-high[1].plot(xValues, methodResults["degree"]["median"][-3:],"v-",color="steelblue")
-high[0].plot(xValues, methodResults["mcs"]["avg"][-3:],"o-",color="tomato", label= "Max Cardinality (mcs)")
-high[1].plot(xValues, methodResults["mcs"]["median"][-3:],"v-",color="tomato")
+high[0].plot(xValues, methodResults["fill"]["avg"][-3:],"o-",color="goldenrod", label= "Min Fill-In (fill)", alpha=0.9)
+high[1].plot(xValues, methodResults["fill"]["median"][-3:],"o-",color="goldenrod", alpha=0.9)
+high[0].plot(xValues, methodResults["degree"]["avg"][-3:],"v-",color="steelblue", label= "Min Degree (degree)", alpha=0.9)
+high[1].plot(xValues, methodResults["degree"]["median"][-3:],"v-",color="steelblue", alpha=0.9)
+high[0].plot(xValues, methodResults["mcs"]["avg"][-3:],"x-",color="tomato", label= "Max Cardinality (mcs)", alpha=0.9)
+high[1].plot(xValues, methodResults["mcs"]["median"][-3:],"x-",color="tomato", alpha=0.9)
 
 # plot values for n=100
-medium[0].plot(xValues, methodResults["fill"]["avg"][3:-3],"o-",color="goldenrod")
-medium[1].plot(xValues, methodResults["fill"]["median"][3:-3],"v-",color="goldenrod")
-medium[0].plot(xValues, methodResults["degree"]["avg"][3:-3],"o-",color="steelblue")
-medium[1].plot(xValues, methodResults["degree"]["median"][3:-3],"v-",color="steelblue")
-medium[0].plot(xValues, methodResults["mcs"]["avg"][3:-3],"o-",color="tomato")
-medium[1].plot(xValues, methodResults["mcs"]["median"][3:-3],"v-",color="tomato")
+medium[0].plot(xValues, methodResults["fill"]["avg"][3:-3],"o-",color="goldenrod", alpha=0.9)
+medium[1].plot(xValues, methodResults["fill"]["median"][3:-3],"o-",color="goldenrod", alpha=0.9)
+medium[0].plot(xValues, methodResults["degree"]["avg"][3:-3],"v-",color="steelblue", alpha=0.9)
+medium[1].plot(xValues, methodResults["degree"]["median"][3:-3],"v-",color="steelblue", alpha=0.9)
+medium[0].plot(xValues, methodResults["mcs"]["avg"][3:-3],"x-",color="tomato", alpha=0.9)
+medium[1].plot(xValues, methodResults["mcs"]["median"][3:-3],"x-",color="tomato", alpha=0.9)
 
 # plot values for n=10
-low[0].plot(xValues, methodResults["fill"]["avg"][:3],"o-",color="goldenrod")
-low[1].plot(xValues, methodResults["fill"]["median"][:3],"v-",color="goldenrod")
-low[0].plot(xValues, methodResults["degree"]["avg"][:3],"o-",color="steelblue")
-low[1].plot(xValues, methodResults["degree"]["median"][:3],"v-",color="steelblue")
-low[0].plot(xValues, methodResults["mcs"]["avg"][:3],"o-",color="tomato")
-low[1].plot(xValues, methodResults["mcs"]["median"][:3],"v-",color="tomato")
+low[0].plot(xValues, methodResults["fill"]["avg"][:3],"o-",color="goldenrod", alpha=0.9)
+low[1].plot(xValues, methodResults["fill"]["median"][:3],"o-",color="goldenrod", alpha=0.9)
+low[0].plot(xValues, methodResults["degree"]["avg"][:3],"v-",color="steelblue", alpha=0.9)
+low[1].plot(xValues, methodResults["degree"]["median"][:3],"v-",color="steelblue", alpha=0.9)
+low[0].plot(xValues, methodResults["mcs"]["avg"][:3],"x-",color="tomato", alpha=0.9)
+low[1].plot(xValues, methodResults["mcs"]["median"][:3],"x-",color="tomato", alpha=0.9)
 
 # set x-axis labels
 low[0].set_xticks(xValues)
