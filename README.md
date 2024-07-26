@@ -8,7 +8,7 @@
 # Build and Execution
 - *The default OS for development and thus building/execution is Linux (Mint)*
 
-**Build:** simply call `make` in the base directory (so within `/sda-heuristics`)
+**Build:** first create a new directory `build` within the base directory and then simply call `make` (so within `/sda-heuristics`)
 
 ### Execution
 ```bash
