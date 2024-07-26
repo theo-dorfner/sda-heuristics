@@ -40,6 +40,7 @@ This script takes the results from `dataGeneration.py` and generates three plots
 
 ![](plots/comparison_degree-mcs.png)
 
+![](plots/avg_median.png)
 
 ## Short Interpretation
 - The width generated correlates with the runtime required by each method, with `fill` being the slowest (and best) and `mcs` being the fastest (but worst)
