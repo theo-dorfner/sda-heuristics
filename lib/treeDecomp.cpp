@@ -154,7 +154,11 @@ void TreeDecomposition::output(Graph& graph,std::string filename) const
     // output nodes
     for(const Node& node : nodes) {
         outputFile << node.ID() << ",,";
-        for(const int& iD : node.getBag()) outputFile << graph.getVertex(iD).label << ";";
+        int ctr{0};
+        for(const int& iD : node.getBag()) {
+            if(ctr++ != 0) outputFile << ";";
+            outputFile << graph.getVertex(iD).label;
+        }
         outputFile << std::endl;
     }
     
