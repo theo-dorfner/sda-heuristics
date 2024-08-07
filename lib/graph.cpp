@@ -76,7 +76,7 @@ bool Graph::addEdge(short int sourceID, short int targetID)
             return true;    // return success
         }
     }
-    else return false;      // some error with adding edges
+    return false;      // some error with adding edges
 }
 
 // duplicate current neighbours into "original neighbours" (for all vertices)
