@@ -1,8 +1,10 @@
 #include "../include/treeDecomp.hpp"
-#include <vector>
-#include <iostream>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <string>
 #include <unordered_set>
+#include <vector>
 
 using idList = std::unordered_set<short int>;
 
@@ -141,6 +143,26 @@ void TreeDecomposition::print() const
         int nodeID = node.ID();
         for(const int& neighbourID : node.getNeighbours()) {
             if (neighbourID > nodeID) std::cout << nodeID << ", " << neighbourID << std::endl;
+        }
+    }
+}
+
+void TreeDecomposition::output(Graph& graph,std::string filename) const
+{
+    std::ofstream outputFile (filename, std::ios::out);
+
+    // output nodes
+    for(const Node& node : nodes) {
+        outputFile << node.ID() << ",,";
+        for(const int& iD : node.getBag()) outputFile << graph.getVertex(iD).label << ";";
+        outputFile << std::endl;
+    }
+    
+    // output edges
+    for(const Node& node : nodes) {
+        int nodeID = node.ID();
+        for(const int& neighbourID : node.getNeighbours()) {
+            if (neighbourID > nodeID) outputFile << nodeID << "," << neighbourID << "," << std::endl;
         }
     }
 }

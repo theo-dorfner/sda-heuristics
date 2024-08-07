@@ -5,6 +5,7 @@
 #include <unordered_set>
 
 #include "vertex.hpp"
+#include "graph.hpp"
 
 
 // define container for holding lists of IDs
@@ -60,4 +61,5 @@ public:
 
     // OUTPUTTING
     void print() const;
+    void output(Graph&, std::string) const;                         // write TD to file
 };

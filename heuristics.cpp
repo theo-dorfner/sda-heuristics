@@ -141,5 +141,7 @@ int main(int argc, char *argv[]){
     std::cout << "width: " << resultingTD.getWidth() << std::endl;
 
 
+    resultingTD.output(graph, "outputTD.txt");
+
     return 0;
 }

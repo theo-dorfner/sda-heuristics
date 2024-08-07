@@ -10,8 +10,8 @@ main: heuristics.cpp libraries
 
 libraries: vertex graph treeDecomp
 
-treeDecomp: include/treeDecomp.hpp lib/treeDecomp.cpp
-	@$(CXX) -c -o build/treeDecomp.o lib/treeDecomp.cpp $(CXXFLAGS)
+treeDecomp: include/treeDecomp.hpp lib/treeDecomp.cpp graph
+	@$(CXX) -c -o build/treeDecomp.o lib/treeDecomp.cpp lib/graph.cpp $(CXXFLAGS)
 
 graph: include/graph.hpp lib/graph.cpp
 	@$(CXX) -c -o build/graph.o lib/graph.cpp $(CXXFLAGS)
